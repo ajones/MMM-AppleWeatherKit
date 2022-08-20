@@ -1,10 +1,10 @@
-# MMM-DarkSkyForecast
+# MMM-AppleWeatherKit
 
 This a module for <strong>MagicMirror</strong><br>
 https://magicmirror.builders/<br>
 https://github.com/MichMich/MagicMirror
 
-![Screenshot](/../screenshots/MMM-DarkSkyForecast.png?raw=true "Screenshot")
+![Screenshot](/../screenshots/MMM-AppleWeatherKit.png?raw=true "Screenshot")
 
 A weather module that displays current, hourly and daily forecast information
 using data from the Dark Sky API. This is a replacement module for MMM-MyWeather, now that Weather Underground no longer allows free API access.  This a complete rewrite from scratch but maintains
@@ -16,8 +16,8 @@ much of the same functionality.
 ## Installation
 
 1. Navigate into your MagicMirror `modules` folder and execute<br>
-`git clone https://github.com/jclarke0000/MMM-DarkSkyForecast.git`.
-2. Enter the new `MMM-DarkSkyForecast` directory and execute `npm install`.
+`git clone https://github.com/jclarke0000/MMM-AppleWeatherKit.git`.
+2. Enter the new `MMM-AppleWeatherKit` directory and execute `npm install`.
 
 
 
@@ -176,7 +176,7 @@ Find out your latitude and longitude here:
 
 ```
 {
-  module: "MMM-DarkSkyForecast",
+  module: "MMM-AppleWeatherKit",
   header: "Weather",
   position: "top_right",
   classes: "default everyone",
@@ -207,12 +207,12 @@ Find out your latitude and longitude here:
 This module is set to be 300px wide by default.  If you wish to override it, you can add the following to your `custom.css` file:
 
 ```
-.MMM-DarkSkyForecast .module-content {
+.MMM-AppleWeatherKit .module-content {
   width: 500px; /* adjust this to taste */
 }
 ```
 
-Most important elements of this module have one or more class names applied. Examine the `MMM-DarkSkyForecast.css` or inspect elements directly with your browser of choice to determine what class you would like to override.
+Most important elements of this module have one or more class names applied. Examine the `MMM-AppleWeatherKit.css` or inspect elements directly with your browser of choice to determine what class you would like to override.
 
 
 ## For Module Developers

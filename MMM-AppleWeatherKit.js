@@ -1,8 +1,8 @@
 /*********************************
 
   Magic Mirror Module:
-  MMM-DarkSkyForecast
-  https://github.com/jclarke0000/MMM-DarkSkyForecast
+  MMM-AppleWeatherKit
+  https://github.com/jclarke0000/MMM-AppleWeatherKit
 
   Icons in use by this module:
   
@@ -38,8 +38,7 @@
 
 *********************************/
 
-Module.register("MMM-DarkSkyForecast", {
-
+Module.register("MMM-AppleWeatherKit", {
   /*
     This module uses the Nunjucks templating system introduced in
     version 2.2.0 of MagicMirror.  If you're seeing nothing on your
@@ -84,19 +83,36 @@ Module.register("MMM-DarkSkyForecast", {
     label_low: "L",
     label_timeFormat: "h a",
     label_days: ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"],
-    label_ordinals: ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"],
-    moduleTimestampIdPrefix: "DARK_SKY_TIMESTAMP_"
+    label_ordinals: [
+      "N",
+      "NNE",
+      "NE",
+      "ENE",
+      "E",
+      "ESE",
+      "SE",
+      "SSE",
+      "S",
+      "SSW",
+      "SW",
+      "WSW",
+      "W",
+      "WNW",
+      "NW",
+      "NNW",
+    ],
+    moduleTimestampIdPrefix: "DARK_SKY_TIMESTAMP_",
   },
 
-  validUnits: ["ca","si","uk2","us"],
+  validUnits: ["ca", "si", "uk2", "us"],
   validLayouts: ["tiled", "table"],
 
-  getScripts: function() {
+  getScripts: function () {
     return ["moment.js", this.file("skycons.js")];
   },
 
   getStyles: function () {
-    return ["MMM-DarkSkyForecast.css"];
+    return ["MMM-AppleWeatherKit.css"];
   },
 
   getTemplate: function () {
@@ -113,28 +129,29 @@ Module.register("MMM-DarkSkyForecast", {
   getTemplateData: function () {
     return {
       phrases: {
-        loading: this.translate("LOADING")
+        loading: this.translate("LOADING"),
       },
       loading: this.formattedWeatherData == null ? true : false,
       config: this.config,
       forecast: this.formattedWeatherData,
-      inlineIcons : {
+      inlineIcons: {
         rain: this.generateIconSrc("i-rain"),
-        wind: this.generateIconSrc("i-wind")
+        wind: this.generateIconSrc("i-wind"),
       },
-      animatedIconSizes : {
+      animatedIconSizes: {
         main: this.config.mainIconSize,
-        forecast: this.config.forecastLayout == "tiled" ? this.config.forecastTiledIconSize : this.config.forecastTableIconSize
+        forecast:
+          this.config.forecastLayout == "tiled"
+            ? this.config.forecastTiledIconSize
+            : this.config.forecastTableIconSize,
       },
       moduleTimestampIdPrefix: this.config.moduleTimestampIdPrefix,
       identifier: this.identifier,
-      timeStamp: this.dataRefreshTimeStamp
-
+      timeStamp: this.dataRefreshTimeStamp,
     };
   },
 
-  start: function() {
-
+  start: function () {
     Log.info("Starting module: " + this.name);
 
     this.weatherData = null;
@@ -151,28 +168,28 @@ Module.register("MMM-DarkSkyForecast", {
      */
     if (this.config.useAnimatedIcons) {
       this.skycons = new Skycons({
-        "monochrome": false,
-        "colors" : {
-          "main" : "#FFFFFF",
-          "moon" : this.config.colored ? "#FFFDC2" : "#FFFFFF", 
-          "fog" : "#FFFFFF",
-          "fogbank" : "#FFFFFF",
-          "cloud" : this.config.colored ? "#BEBEBE" : "#999999",
-          "snow" : "#FFFFFF",
-          "leaf" : this.config.colored ? "#98D24D" : "#FFFFFF",
-          "rain" : this.config.colored ? "#7CD5FF" : "#FFFFFF",
-          "sun" : this.config.colored ? "#FFD550" : "#FFFFFF"
-        }
+        monochrome: false,
+        colors: {
+          main: "#FFFFFF",
+          moon: this.config.colored ? "#FFFDC2" : "#FFFFFF",
+          fog: "#FFFFFF",
+          fogbank: "#FFFFFF",
+          cloud: this.config.colored ? "#BEBEBE" : "#999999",
+          snow: "#FFFFFF",
+          leaf: this.config.colored ? "#98D24D" : "#FFFFFF",
+          rain: this.config.colored ? "#7CD5FF" : "#FFFFFF",
+          sun: this.config.colored ? "#FFD550" : "#FFFFFF",
+        },
       });
     }
 
     //sanitize optional parameters
     if (this.validUnits.indexOf(this.config.units) == -1) {
       this.config.units = "ca";
-    } 
+    }
     if (this.validLayouts.indexOf(this.config.forecastLayout) == -1) {
       this.config.forecastLayout = "tiled";
-    } 
+    }
     if (this.iconsets[this.config.iconset] == null) {
       this.config.iconset = "1c";
     }
@@ -185,33 +202,27 @@ Module.register("MMM-DarkSkyForecast", {
       "mainIconSize",
       "forecastIconSize",
       "updateFadeSpeed",
-      "animatedIconPlayDelay"
+      "animatedIconPlayDelay",
     ]);
-
-
 
     //force icon set to mono version whern config.coloured = false
     if (this.config.colored == false) {
-      this.config.iconset = this.config.iconset.replace("c","m");      
+      this.config.iconset = this.config.iconset.replace("c", "m");
     }
 
     //start data poll
     var self = this;
-    setTimeout(function() {
-
+    setTimeout(function () {
       //first data pull is delayed by config
       self.getData();
 
-      setInterval(function() {
+      setInterval(function () {
         self.getData();
       }, self.config.updateInterval * 60 * 1000); //convert to milliseconds
-
     }, this.config.requestDelay);
-    
-
   },
 
-  getData: function() {
+  getData: function () {
     this.sendSocketNotification("DARK_SKY_FORECAST_GET", {
       apikey: this.config.apikey,
       latitude: this.config.latitude,
@@ -219,15 +230,15 @@ Module.register("MMM-DarkSkyForecast", {
       units: this.config.units,
       language: this.config.language,
       instanceId: this.identifier,
-      requestDelay: this.config.requestDelay
+      requestDelay: this.config.requestDelay,
     });
-
   },
 
-  socketNotificationReceived: function(notification, payload) {
-
-    if (notification == "DARK_SKY_FORECAST_DATA" && payload.instanceId == this.identifier) {
-
+  socketNotificationReceived: function (notification, payload) {
+    if (
+      notification == "DARK_SKY_FORECAST_DATA" &&
+      payload.instanceId == this.identifier
+    ) {
       //clear animated icon cache
       if (this.config.useAnimatedIcons) {
         this.clearIcons();
@@ -253,18 +264,20 @@ Module.register("MMM-DarkSkyForecast", {
       */
       if (this.config.useAnimatedIcons) {
         var self = this;
-        this.animatedIconDrawTimer = setInterval(function() {
-          var elToTest = document.getElementById(self.config.moduleTimestampIdPrefix + self.identifier);
-          if (elToTest != null && elToTest.getAttribute("data-timestamp") == self.dataRefreshTimeStamp) {
+        this.animatedIconDrawTimer = setInterval(function () {
+          var elToTest = document.getElementById(
+            self.config.moduleTimestampIdPrefix + self.identifier
+          );
+          if (
+            elToTest != null &&
+            elToTest.getAttribute("data-timestamp") == self.dataRefreshTimeStamp
+          ) {
             clearInterval(self.animatedIconDrawTimer);
             self.playIcons(self);
           }
         }, 100);
-      } 
-
+      }
     }
-
-
   },
 
   /*
@@ -272,20 +285,24 @@ Module.register("MMM-DarkSkyForecast", {
     if statements to determine if a certain section should be displayed, and a simple loop to go through
     the houly / daily forecast items.
   */
-  processWeatherData: function() {
-
+  processWeatherData: function () {
     var summary;
     if (this.config.concise) {
-      summary = this.weatherData.hourly ? this.weatherData.hourly.summary : this.weatherData.currently.summary;
+      summary = this.weatherData.hourly
+        ? this.weatherData.hourly.summary
+        : this.weatherData.currently.summary;
     } else {
-      summary = (this.weatherData.minutely ? this.weatherData.minutely.summary : this.weatherData.currently.summary + ".") + " " +
+      summary =
+        (this.weatherData.minutely
+          ? this.weatherData.minutely.summary
+          : this.weatherData.currently.summary + ".") +
+        " " +
         (this.weatherData.hourly ? this.weatherData.hourly.summary + " " : "") +
         (this.weatherData.daily ? this.weatherData.daily.summary : "");
     }
 
     var hourlies = [];
     if (this.config.showHourlyForecast) {
-
       var displayCounter = 0;
       var currentIndex = this.config.hourlyForecastInterval;
       while (displayCounter < this.config.maxHourliesToShow) {
@@ -293,65 +310,79 @@ Module.register("MMM-DarkSkyForecast", {
           break;
         }
 
-        hourlies.push(this.forecastItemFactory(this.weatherData.hourly.data[currentIndex], "hourly"));
+        hourlies.push(
+          this.forecastItemFactory(
+            this.weatherData.hourly.data[currentIndex],
+            "hourly"
+          )
+        );
 
         currentIndex += this.config.hourlyForecastInterval;
         displayCounter++;
-
       }
-
     }
 
     var dailies = [];
     if (this.config.showDailyForecast) {
-
       for (var i = 1; i <= this.config.maxDailiesToShow; i++) {
         if (this.weatherData.daily.data[i] == null) {
           break;
         }
 
-        dailies.push(this.forecastItemFactory(this.weatherData.daily.data[i], "daily"));
+        dailies.push(
+          this.forecastItemFactory(this.weatherData.daily.data[i], "daily")
+        );
       }
-
     }
 
-
     return {
-      "currently" : {
+      currently: {
         temperature: Math.round(this.weatherData.currently.temperature) + "°",
-        animatedIconId: this.config.useAnimatedIcons ? this.getAnimatedIconId() : null,
+        animatedIconId: this.config.useAnimatedIcons
+          ? this.getAnimatedIconId()
+          : null,
         animatedIconName: this.weatherData.currently.icon,
         iconPath: this.generateIconSrc(this.weatherData.currently.icon),
-        tempRange: this.formatHiLowTemperature(this.weatherData.daily.data[0].temperatureMax,this.weatherData.daily.data[0].temperatureMin),
-        precipitation: this.formatPrecipitation(this.weatherData.currently.precipProbability, this.weatherData.currently.precipAccumulation, this.weatherData.currently.precipIntensityMax, this.weatherData.currently.precipIntensity),
-        wind: this.formatWind(this.weatherData.currently.windSpeed, this.weatherData.currently.windBearing, this.weatherData.currently.windGust),
-
+        tempRange: this.formatHiLowTemperature(
+          this.weatherData.daily.data[0].temperatureMax,
+          this.weatherData.daily.data[0].temperatureMin
+        ),
+        precipitation: this.formatPrecipitation(
+          this.weatherData.currently.precipProbability,
+          this.weatherData.currently.precipAccumulation,
+          this.weatherData.currently.precipIntensityMax,
+          this.weatherData.currently.precipIntensity
+        ),
+        wind: this.formatWind(
+          this.weatherData.currently.windSpeed,
+          this.weatherData.currently.windBearing,
+          this.weatherData.currently.windGust
+        ),
       },
-      "summary" : summary,
-      "hourly" : hourlies,
-      "daily" : dailies,
+      summary: summary,
+      hourly: hourlies,
+      daily: dailies,
     };
-  },  
-
+  },
 
   /*
     Hourly and Daily forecast items are very similar.  So one routine builds the data
     objects for both.
    */
-  forecastItemFactory: function(fData, type) {
-
+  forecastItemFactory: function (fData, type) {
     var fItem = new Object();
 
     // --------- Date / Time Display ---------
     if (type == "daily") {
-
       //day name (e.g.: "MON")
       fItem.day = this.config.label_days[moment(fData.time * 1000).format("d")];
-
-    } else { //hourly
+    } else {
+      //hourly
 
       //time (e.g.: "5 PM")
-      fItem.time = moment(fData.time * 1000).format(this.config.label_timeFormat);
+      fItem.time = moment(fData.time * 1000).format(
+        this.config.label_timeFormat
+      );
     }
 
     // --------- Icon ---------
@@ -363,17 +394,31 @@ Module.register("MMM-DarkSkyForecast", {
 
     // --------- Temperature ---------
 
-    if (type == "hourly") { //just display projected temperature for that hour
+    if (type == "hourly") {
+      //just display projected temperature for that hour
       fItem.temperature = Math.round(fData.temperature) + "°";
-    } else { //display High / Low temperatures
-      fItem.tempRange = this.formatHiLowTemperature(fData.temperatureMax,fData.temperatureMin);
+    } else {
+      //display High / Low temperatures
+      fItem.tempRange = this.formatHiLowTemperature(
+        fData.temperatureMax,
+        fData.temperatureMin
+      );
     }
 
     // --------- Precipitation ---------
-    fItem.precipitation = this.formatPrecipitation(fData.precipProbability,fData.precipAccumulation,fData.precipIntensityMax,fData.precipIntensity);
+    fItem.precipitation = this.formatPrecipitation(
+      fData.precipProbability,
+      fData.precipAccumulation,
+      fData.precipIntensityMax,
+      fData.precipIntensity
+    );
 
     // --------- Wind ---------
-    fItem.wind = (this.formatWind(fData.windSpeed, fData.windBearing, fData.windGust));
+    fItem.wind = this.formatWind(
+      fData.windSpeed,
+      fData.windBearing,
+      fData.windGust
+    );
 
     return fItem;
   },
@@ -381,60 +426,89 @@ Module.register("MMM-DarkSkyForecast", {
   /*
     Returns a formatted data object for High / Low temperature range
    */
-  formatHiLowTemperature: function(h,l) {
+  formatHiLowTemperature: function (h, l) {
     return {
-      high: (!this.config.concise ? this.config.label_high + " " : "") + Math.round(h) + "°",
-      low: (!this.config.concise ? this.config.label_low + " " : "") + Math.round(l) + "°"
+      high:
+        (!this.config.concise ? this.config.label_high + " " : "") +
+        Math.round(h) +
+        "°",
+      low:
+        (!this.config.concise ? this.config.label_low + " " : "") +
+        Math.round(l) +
+        "°",
     };
   },
 
   /*
     Returns a formatted data object for precipitation
    */
-  formatPrecipitation: function(percentChance, snowAccumulation, rainIntensityMax, rainIntensity) {
-
+  formatPrecipitation: function (
+    percentChance,
+    snowAccumulation,
+    rainIntensityMax,
+    rainIntensity
+  ) {
     var accumulation = null;
 
     //accumulation
     if (!this.config.concise && percentChance > 0) {
-      if (snowAccumulation) { //snow
-        accumulation = Math.round(snowAccumulation) + " " + this.getUnit("accumulationSnow");
-      } else if (rainIntensityMax){ //max rate for the day
-        accumulation = (Math.round(rainIntensityMax * 10) / 10) + " " + this.getUnit("accumulationRain");
-      } else { //rate for the hour
-        accumulation = (Math.round(rainIntensity * 10) / 10) + " " + this.getUnit("accumulationRain");
+      if (snowAccumulation) {
+        //snow
+        accumulation =
+          Math.round(snowAccumulation) + " " + this.getUnit("accumulationSnow");
+      } else if (rainIntensityMax) {
+        //max rate for the day
+        accumulation =
+          Math.round(rainIntensityMax * 10) / 10 +
+          " " +
+          this.getUnit("accumulationRain");
+      } else {
+        //rate for the hour
+        accumulation =
+          Math.round(rainIntensity * 10) / 10 +
+          " " +
+          this.getUnit("accumulationRain");
       }
       accumulation = "(" + accumulation + ")";
     }
 
     return {
       pop: Math.round(percentChance * 100) + "%",
-      accumulation: accumulation
+      accumulation: accumulation,
     };
-
   },
 
   /*
     Returns a formatted data object for wind conditions
    */
-  formatWind: function(speed, bearing, gust) {
-
+  formatWind: function (speed, bearing, gust) {
     //wind gust
     var windGust = null;
     if (!this.config.concise && gust) {
-      windGust = " (" + this.config.label_maximum + " " + Math.round(gust) + " " + this.getUnit("windSpeed") + ")";
-    }    
+      windGust =
+        " (" +
+        this.config.label_maximum +
+        " " +
+        Math.round(gust) +
+        " " +
+        this.getUnit("windSpeed") +
+        ")";
+    }
 
     return {
-      windSpeed: Math.round(speed) + " " + this.getUnit("windSpeed") + (!this.config.concise ? " " + this.getOrdinal(bearing) : ""),
-      windGust: windGust
+      windSpeed:
+        Math.round(speed) +
+        " " +
+        this.getUnit("windSpeed") +
+        (!this.config.concise ? " " + this.getOrdinal(bearing) : ""),
+      windGust: windGust,
     };
   },
 
   /*
     Returns the units in use for the data pull from Dark Sky
    */
-  getUnit: function(metric) {
+  getUnit: function (metric) {
     return this.units[metric][this.weatherData.flags.units];
   },
 
@@ -442,8 +516,8 @@ Module.register("MMM-DarkSkyForecast", {
     Formats the wind direction into common ordinals (e.g.: NE, WSW, etc.)
     Wind direction is provided in degress from North in the data feed.
    */
-  getOrdinal: function(bearing) {
-    return this.config.label_ordinals[Math.round(bearing * 16 / 360) % 16];
+  getOrdinal: function (bearing) {
+    return this.config.label_ordinals[Math.round((bearing * 16) / 360) % 16];
   },
 
   /*
@@ -455,20 +529,20 @@ Module.register("MMM-DarkSkyForecast", {
       si: "mm",
       ca: "mm",
       uk2: "mm",
-      us: "in"
+      us: "in",
     },
     accumulationSnow: {
       si: "cm",
       ca: "cm",
       uk2: "cm",
-      us: "in"
+      us: "in",
     },
     windSpeed: {
       si: "m/s",
       ca: "km/h",
       uk2: "mph",
-      us: "mph"
-    }
+      us: "mph",
+    },
   },
 
   /*
@@ -508,28 +582,31 @@ Module.register("MMM-DarkSkyForecast", {
 
    */
   iconsets: {
-    "1m": {path:"1m", format:"svg"},
-    "1c": {path:"1c", format:"svg"},
-    "2m": {path:"2m", format:"svg"},
-    "2c": {path:"2c", format:"svg"},
-    "3m": {path:"3m", format:"svg"},
-    "3c": {path:"3c", format:"svg"},
-    "4m": {path:"4m", format:"svg"},
-    "4c": {path:"4c", format:"svg"},
-    "5m": {path:"5m", format:"svg"},
-    "5c": {path:"5c", format:"svg"},
+    "1m": { path: "1m", format: "svg" },
+    "1c": { path: "1c", format: "svg" },
+    "2m": { path: "2m", format: "svg" },
+    "2c": { path: "2c", format: "svg" },
+    "3m": { path: "3m", format: "svg" },
+    "3c": { path: "3c", format: "svg" },
+    "4m": { path: "4m", format: "svg" },
+    "4c": { path: "4c", format: "svg" },
+    "5m": { path: "5m", format: "svg" },
+    "5c": { path: "5c", format: "svg" },
   },
 
   /*
     This generates a URL to the icon file
    */
-  generateIconSrc: function(icon) {
-    return this.file("icons/" + this.iconsets[this.config.iconset].path + "/" +
-        icon + "." + this.iconsets[this.config.iconset].format);
-
+  generateIconSrc: function (icon) {
+    return this.file(
+      "icons/" +
+        this.iconsets[this.config.iconset].path +
+        "/" +
+        icon +
+        "." +
+        this.iconsets[this.config.iconset].format
+    );
   },
-
-
 
   /*
     When the Skycons animated set is in use, the icons need
@@ -537,11 +614,13 @@ Module.register("MMM-DarkSkyForecast", {
     DOM to find all of the current animated icon canvas elements
     and removes them by id from the skycons object.
    */
-  clearIcons: function() {
+  clearIcons: function () {
     this.skycons.pause();
     var self = this;
-    var animatedIconCanvases = document.querySelectorAll(".skycon-" + this.identifier);
-    animatedIconCanvases.forEach(function(icon) {
+    var animatedIconCanvases = document.querySelectorAll(
+      ".skycon-" + this.identifier
+    );
+    animatedIconCanvases.forEach(function (icon) {
       self.skycons.remove(icon.id);
     });
     this.iconIdCounter = 0;
@@ -552,8 +631,7 @@ Module.register("MMM-DarkSkyForecast", {
     to be rebuilt with each data refresh.  This returns a
     unique id that will be assigned the icon's canvas element.
    */
-  getAnimatedIconId: function() {
-
+  getAnimatedIconId: function () {
     //id to use for the canvas element
     var iconId = "skycon_" + this.identifier + "_" + this.iconIdCounter;
     this.iconIdCounter++;
@@ -572,13 +650,14 @@ Module.register("MMM-DarkSkyForecast", {
     prepared for an animated icon, and adds the icon to the
     skycons object.  Then the icons are played.
   */
-  playIcons: function(inst) {
-    var animatedIconCanvases = document.querySelectorAll(".skycon-" + inst.identifier);
-    animatedIconCanvases.forEach(function(icon) {
+  playIcons: function (inst) {
+    var animatedIconCanvases = document.querySelectorAll(
+      ".skycon-" + inst.identifier
+    );
+    animatedIconCanvases.forEach(function (icon) {
       inst.skycons.add(icon.id, icon.getAttribute("data-animated-icon-name"));
     });
     inst.skycons.play();
-
   },
 
   /*
@@ -586,19 +665,14 @@ Module.register("MMM-DarkSkyForecast", {
     routine ensures they are numbers, and if they cannot be
     converted to integers, then the module defaults are used.
    */
-  sanitizeNumbers: function(keys) {
-
+  sanitizeNumbers: function (keys) {
     var self = this;
-    keys.forEach(function(key) {
+    keys.forEach(function (key) {
       if (isNaN(parseInt(self.config[key]))) {
         self.config[key] = self.defaults[key];
       } else {
         self.config[key] = parseInt(self.config[key]);
       }
     });
-  }
-
-
-
-
+  },
 });

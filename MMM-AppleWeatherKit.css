@@ -1,0 +1,258 @@
+.MMM-AppleWeatherKit * {
+  box-sizing: border-box;
+}
+
+.MMM-AppleWeatherKit .module-content {
+  width: 300px;
+}
+
+.MMM-AppleWeatherKit .forecast-container .forecast-item .temperature,
+.MMM-AppleWeatherKit .forecast-container .forecast-item .temperature-container {
+  color: #FFFFFF;
+}
+
+.MMM-AppleWeatherKit .temperature .low-temperature,
+.MMM-AppleWeatherKit .temperature-container .low-temperature {
+  color: #AAA;
+}
+
+.MMM-AppleWeatherKit .wrapper.colored .temperature .high-temperature,
+.MMM-AppleWeatherKit .wrapper.colored .temperature-container .high-temperature {
+  color: #F8DD70;
+}
+
+.MMM-AppleWeatherKit .wrapper.colored .temperature .low-temperature,
+.MMM-AppleWeatherKit .wrapper.colored .temperature-container .low-temperature {
+  color: #6FC4F5;
+}
+
+.MMM-AppleWeatherKit .accumulation:before {
+  content: " ";
+}
+
+.MMM-AppleWeatherKit .attribution {
+  font-size: 10px;
+  line-height: 16px;
+  color: #333;
+  text-align: right;
+}
+
+/* Current Conditions */
+
+.MMM-AppleWeatherKit .current-conditions-wrapper .current.temperature {
+  line-height: 80px;
+  vertical-align: middle;
+}
+
+.MMM-AppleWeatherKit .current-conditions-wrapper .icon {
+  vertical-align: middle;
+  line-height: 80px;
+  margin-right: 20px;
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+  position: relative;
+}
+
+.MMM-AppleWeatherKit .extra-current-conditions-wrapper {
+  display: block;
+  /*text-align: left;*/
+  /*background-color: #333;*/
+  word-wrap: normal;
+  margin: 0 -15px;
+}
+
+
+/* Inline icons */
+.MMM-AppleWeatherKit .inline-icon,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .inline-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 0px;
+  vertical-align: bottom;
+  position: relative;
+}
+
+
+/* Extra Current Conditions */
+
+.MMM-AppleWeatherKit .extra-current-conditions-wrapper .temperature-container,
+.MMM-AppleWeatherKit .extra-current-conditions-wrapper .precipitation-container,
+.MMM-AppleWeatherKit .extra-current-conditions-wrapper .wind-container {
+  display: inline-block;
+  white-space: nowrap;
+  margin:0 15px;
+  margin-bottom: 10px;
+}
+
+/* Summary */
+
+.MMM-AppleWeatherKit .summary {
+  margin: 15px 0;
+}
+
+
+/* Forecast Header */
+
+.MMM-AppleWeatherKit .module-header.forecast-header {
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+/* ------------ Forecast ------------ */
+
+/* Tiled Layout */
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 0 30px;
+  border-top: solid 1px #222;
+}
+
+.MMM-AppleWeatherKit .wrapper.with-forecast-header.tiled .forecast-container {
+  border-top: none;
+}
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item {
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-width: 100px;
+  padding: 10px 5px 10px 5px;
+  border-bottom: solid 1px #222;
+}
+
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container * {
+  text-align: center;
+}
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .time,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .forecast-icon-container,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .forecast-icon,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .temperature,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .temperature-container,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .precipitation-container,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .wind-container,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .day-name {
+  display: block;
+  margin: auto;
+}
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .forecast-icon {
+  width: 70px;
+  height: 70px;
+  margin: 4px auto;
+}
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .time,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .day-name {
+  font-size: 17px;
+  text-transform: uppercase;
+}
+
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .wind-speed,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .wind-gusts {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .wind-gusts {
+  display: block;
+}
+
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .temperature,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .temperature-container {
+  font-size: 22px;
+  padding: 4px 0;
+}
+
+
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .precipitation-container,
+.MMM-AppleWeatherKit .wrapper.tiled .forecast-container .forecast-item .wind-container {
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+/* ------------ Table Layout ------------ */
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container {
+  display: table;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 17px;
+  line-height: 1;
+  border-bottom: solid 1px #222;
+}
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item,
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .header-row {
+  display: table-row;
+  border-top: solid 1px #222;
+}
+
+.MMM-AppleWeatherKit .wrapper.with-forecast-header.table .forecast-container > div:first-child,
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .header-row {
+  border-top: none;
+}
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .header-row .date-time-header {
+  text-align: left;
+  overflow: visible;
+}
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item > span,
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .header-row > span {
+  display: table-cell;
+  font-size: 17px;
+  text-align: center;
+  vertical-align: middle;
+  height: 40px;
+}
+
+
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .header-row > span {
+  height: 32px;
+  font-size: 14px;
+  text-transform: uppercase;
+  vertical-align: bottom;
+  padding-bottom: 2px;
+}
+
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item > span:first-child {
+  text-align: left;
+}
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item > span:last-child {
+  text-align: right;
+}
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item .forecast-icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+  vertical-align: middle;
+}
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item .time,
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item  .high-temperature,
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item .low-temperature, {
+  white-space: nowrap;
+}
+
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item .wind-gusts,
+.MMM-AppleWeatherKit .wrapper.table .forecast-container .forecast-item .accumulation {
+  display: block;
+  white-space: nowrap;
+}
+
+
+
