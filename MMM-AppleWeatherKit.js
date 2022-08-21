@@ -47,28 +47,68 @@ Module.register("MMM-AppleWeatherKit", {
   */
   requiresVersion: "2.2.0",
 
+  exampleData: {
+    currentWeather: {
+      name: "CurrentWeather",
+      metadata: {
+        attributionURL: "https://weatherkit.apple.com/legal-attribution.html",
+        expireTime: "2022-08-21T03:09:09Z",
+        latitude: 37.868,
+        longitude: -122.061,
+        readTime: "2022-08-21T03:04:09Z",
+        reportedTime: "2022-08-21T01:00:00Z",
+        units: "m",
+        version: 1,
+      },
+      asOf: "2022-08-21T03:04:09Z",
+      cloudCover: 0,
+      conditionCode: "Clear",
+      daylight: false,
+      humidity: 0.59,
+      precipitationIntensity: 0,
+      pressure: 1009.16,
+      pressureTrend: "rising",
+      temperature: 21.12,
+      temperatureApparent: 20.89,
+      temperatureDewPoint: 12.74,
+      uvIndex: 0,
+      visibility: 33075.45,
+      windDirection: 221,
+      windGust: 22.79,
+      windSpeed: 12.09,
+    },
+  },
+
   defaults: {
-    apikey: "",
+    updateIntervalSec: 60 * 10, // 10 min
+    showCurrentConditions: true,
+
     latitude: "",
     longitude: "",
-    updateInterval: 10, // minutes
+    language: "en",
+    appleWeatherKitKeyPath: "",
+    appleDeveloperTeamId: "",
+    appleServiceId: "",
+    appleKeyId: "",
+    timezone: "",
+    countryCode: "",
+
     requestDelay: 0,
     units: "ca",
-    showCurrentConditions: true,
-    showExtraCurrentConditions: true,
-    showSummary: true,
+    showExtraCurrentConditions: false,
+    showSummary: false,
     forecastHeaderText: "",
     showForecastTableColumnHeaderIcons: true,
-    showHourlyForecast: true,
+    showHourlyForecast: false,
     hourlyForecastInterval: 3,
     maxHourliesToShow: 3,
-    showDailyForecast: true,
+    showDailyForecast: false,
     maxDailiesToShow: 3,
-    showPrecipitation: true,
+    showPrecipitation: false,
     concise: true,
     showWind: true,
     language: config.language,
-    iconset: "1c",
+    iconset: "3c",
     useAnimatedIcons: true,
     animateMainIconOnly: true,
     colored: true,
@@ -116,7 +156,11 @@ Module.register("MMM-AppleWeatherKit", {
   },
 
   getTemplate: function () {
-    return "mmm-darksky-forecast.njk";
+    return "mmm-appleweatherkit-forecast.njk";
+  },
+
+  celciusToFaerenheit(c) {
+    return c * (9.0 / 5.0) + 32;
   },
 
   /*
@@ -160,6 +204,12 @@ Module.register("MMM-AppleWeatherKit", {
     this.animatedIconDrawTimer = null;
 
     /*
+    // for testing
+    this.weatherData = this.exampleData;
+    this.formattedWeatherData = this.processWeatherData();
+    */
+
+    /*
       Optionally, Dark Sky's Skycons animated icon
       set can be used.  If so, it is drawn to the DOM
       and animated on demand as opposed to being 
@@ -183,61 +233,36 @@ Module.register("MMM-AppleWeatherKit", {
       });
     }
 
-    //sanitize optional parameters
-    if (this.validUnits.indexOf(this.config.units) == -1) {
-      this.config.units = "ca";
-    }
-    if (this.validLayouts.indexOf(this.config.forecastLayout) == -1) {
-      this.config.forecastLayout = "tiled";
-    }
-    if (this.iconsets[this.config.iconset] == null) {
-      this.config.iconset = "1c";
-    }
-    this.sanitizeNumbers([
-      "updateInterval",
-      "requestDelay",
-      "hourlyForecastInterval",
-      "maxHourliesToShow",
-      "maxDailiesToShow",
-      "mainIconSize",
-      "forecastIconSize",
-      "updateFadeSpeed",
-      "animatedIconPlayDelay",
-    ]);
-
-    //force icon set to mono version whern config.coloured = false
-    if (this.config.colored == false) {
-      this.config.iconset = this.config.iconset.replace("c", "m");
-    }
-
-    //start data poll
-    var self = this;
-    setTimeout(function () {
-      //first data pull is delayed by config
-      self.getData();
-
-      setInterval(function () {
-        self.getData();
-      }, self.config.updateInterval * 60 * 1000); //convert to milliseconds
-    }, this.config.requestDelay);
+    this.getData();
+    setInterval(() => {
+      this.getData();
+    }, this.config.updateIntervalSec * 1000);
   },
 
   getData: function () {
-    this.sendSocketNotification("DARK_SKY_FORECAST_GET", {
-      apikey: this.config.apikey,
+    // disable while developing
+    this.sendSocketNotification("APPLE_WEATHERKIT_REQUEST", {
+      appleWeatherKitKeyPath: this.config.appleWeatherKitKeyPath,
       latitude: this.config.latitude,
       longitude: this.config.longitude,
+      language: "en",
+      appleDeveloperTeamId: "6DMYDGMEWQ",
+      appleServiceId: "com.inburst.familywall",
+      appleKeyId: "4F8D83SP77",
+      timezone: "America/Los_Angeles",
+      countryCode: "US",
+      instanceId: this.identifier,
+
       units: this.config.units,
       language: this.config.language,
-      instanceId: this.identifier,
       requestDelay: this.config.requestDelay,
     });
   },
 
   socketNotificationReceived: function (notification, payload) {
     if (
-      notification == "DARK_SKY_FORECAST_DATA" &&
-      payload.instanceId == this.identifier
+      notification == "APPLE_WEATHERKIT_RESPONSE" &&
+      payload.instanceId === this.identifier
     ) {
       //clear animated icon cache
       if (this.config.useAnimatedIcons) {
@@ -286,6 +311,22 @@ Module.register("MMM-AppleWeatherKit", {
     the houly / daily forecast items.
   */
   processWeatherData: function () {
+    console.log(this.weatherData);
+    const { currentWeather } = this.weatherData;
+
+    const dayOrNight = currentWeather.daylight ? "day" : "night";
+    return {
+      currently: {
+        temperature:
+          Math.round(
+            this.celciusToFaerenheit(currentWeather.temperatureApparent)
+          ) + "°",
+        iconPath: this.generateIconSrc(
+          `${currentWeather.conditionCode}-${dayOrNight}`
+        ),
+      },
+    };
+    /*
     var summary;
     if (this.config.concise) {
       summary = this.weatherData.hourly
@@ -363,6 +404,7 @@ Module.register("MMM-AppleWeatherKit", {
       hourly: hourlies,
       daily: dailies,
     };
+    */
   },
 
   /*
@@ -602,7 +644,7 @@ Module.register("MMM-AppleWeatherKit", {
       "icons/" +
         this.iconsets[this.config.iconset].path +
         "/" +
-        icon +
+        icon.toLowerCase() +
         "." +
         this.iconsets[this.config.iconset].format
     );
@@ -674,5 +716,21 @@ Module.register("MMM-AppleWeatherKit", {
         self.config[key] = parseInt(self.config[key]);
       }
     });
+  },
+
+  uvIndexCategoryName(uv) {
+    if (!uv) {
+      return "unknown";
+    } else if (uv <= 2) {
+      return "LOW";
+    } else if (uv <= 5) {
+      return "MODERATE";
+    } else if (uv <= 7) {
+      return "HIGH";
+    } else if (uv <= 10) {
+      return "VERY HIGH";
+    } else {
+      return "EXTREME";
+    }
   },
 });

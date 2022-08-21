@@ -22,6 +22,9 @@
 var NodeHelper = require("node_helper");
 var request = require("request");
 var moment = require("moment");
+var jwt = require("jsonwebtoken");
+var fs = require("fs");
+const qs = require("querystring");
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -33,58 +36,64 @@ module.exports = NodeHelper.create({
   },
 
   socketNotificationReceived: function (notification, payload) {
-    if (notification === "DARK_SKY_FORECAST_GET") {
-      var self = this;
+    if (notification === "APPLE_WEATHERKIT_REQUEST") {
+      const {
+        appleDeveloperTeamId,
+        appleServiceId,
+        appleKeyId,
+        latitude,
+        longitude,
+        language,
+        appleWeatherKitKeyPath,
+        timezone,
+        countryCode,
+      } = payload;
+      console.log("PAYLOAD", payload);
 
-      if (payload.apikey == null || payload.apikey == "") {
-        console.log(
-          "[MMM-AppleWeatherKit] " +
-            moment().format("D-MMM-YY HH:mm") +
-            " ** ERROR ** No API key configured. Get an API key at https://darksky.net"
-        );
-      } else if (
-        payload.latitude == null ||
-        payload.latitude == "" ||
-        payload.longitude == null ||
-        payload.longitude == ""
-      ) {
-        console.log(
-          "[MMM-AppleWeatherKit] " +
-            moment().format("D-MMM-YY HH:mm") +
-            " ** ERROR ** Latitude and/or longitude not provided."
-        );
-      } else {
-        //make request to Dark Sky API
-        var url =
-          "https://api.darksky.net/forecast/" +
-          payload.apikey +
-          "/" +
-          payload.latitude +
-          "," +
-          payload.longitude +
-          "?units=" +
-          payload.units +
-          "&lang=" +
-          payload.language;
-        // "&exclude=minutely"
+      const tokOpts = {
+        algorithm: "ES256",
+        keyid: appleKeyId,
+        jwtid: `${appleDeveloperTeamId}.${appleServiceId}`,
+      };
+      const claims = {
+        iss: appleDeveloperTeamId,
+        iat: new Date().getTime() / 1000,
+        exp: new Date().getTime() / 1000 + 60 * 60 * 24 * 180, // 180 days
+        sub: appleServiceId,
+      };
 
-        // console.log("[MMM-AppleWeatherKit] Getting data: " + url);
-        request({ url: url, method: "GET" }, function (error, response, body) {
-          if (!error && response.statusCode == 200) {
-            //Good response
-            var resp = JSON.parse(body);
-            resp.instanceId = payload.instanceId;
-            self.sendSocketNotification("DARK_SKY_FORECAST_DATA", resp);
-          } else {
-            console.log(
-              "[MMM-AppleWeatherKit] " +
-                moment().format("D-MMM-YY HH:mm") +
-                " ** ERROR ** " +
-                error
-            );
-          }
-        });
-      }
+      var privateKey = fs.readFileSync(appleWeatherKitKeyPath);
+      var token = jwt.sign(claims, privateKey, tokOpts);
+
+      const queryString = qs.stringify({
+        timezone,
+        countryCode,
+        dataSets: "currentWeather,forecastNextHour,forecastDaily,weatherAlerts",
+      });
+      const url = `https://weatherkit.apple.com/api/v1/weather/${language}/${latitude}/${longitude}?${queryString}`;
+      const req = {
+        url,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      request(req, (error, response, body) => {
+        //console.log(`status code ${response.statusCode}`);
+        if (!error && response.statusCode == 200) {
+          var resp = JSON.parse(body);
+          //console.log(resp);
+
+          resp.instanceId = payload.instanceId;
+          this.sendSocketNotification("APPLE_WEATHERKIT_RESPONSE", resp);
+        } else {
+          console.log(
+            "[MMM-AppleWeatherKit] " +
+              moment().format("D-MMM-YY HH:mm") +
+              " ** ERROR ** " +
+              error
+          );
+        }
+      });
     }
   },
 });

@@ -1,18 +1,28 @@
 {
   "name": "MMM-AppleWeatherKit",
   "version": "1.0.0",
-  "description": "Magic Mirror module that gets weather forecast data from Dark Sky",
+  "description": "Magic Mirror module that gets weather forecast data from Apple's WeatherKit REST API",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jclarke0000/MMM-AppleWeatherKit"
+    "url": "git+https://github.com/ajones/MMM-AppleWeatherKit"
   },
   "main": "MMM-AppleWeatherKit.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Jeff Clarke",
+  "author": {
+    "name": "Aaron Jones",
+    "url": "https://github.com/ajones"
+  },
+  "contributors": [
+    {
+      "name": "Jeff Clarke",
+      "url": "https://github.com/jclarke0000"
+    }
+  ],
   "license": "MIT",
   "dependencies": {
+    "jsonwebtoken": "^8.5.1",
     "moment": "^2.22.2",
     "npm": "^6.4.1",
     "request": "^2.88.0"
