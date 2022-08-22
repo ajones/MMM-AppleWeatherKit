@@ -1,5 +1,10 @@
 # MMM-AppleWeatherKit
 
+todo: 
+- complete icon integrations https://developer.apple.com/documentation/weatherkit/weathercondition
+
+
+
 This a module for <strong>MagicMirror</strong><br>
 https://magicmirror.builders/<br>
 https://github.com/MichMich/MagicMirror
